@@ -6,7 +6,7 @@ create a pygame menu fast without compromise
 --(before you run this code make sure you have installed/changed the fonts in the code)
 ```python
 import pygame
-from pygame_menu_pro import *
+from pygameMenuPro import *
 
 # pygame setup:
 pygame.init()
