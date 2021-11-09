@@ -1,5 +1,7 @@
 # pygame-menu-pro
 create a pygame menu fast without compromise
+## Setup:
+`pip install pygameMenuPro`
 ## Usage:
 --(before you run this code make sure you have installed/changed the fonts in the code)
 ```python
