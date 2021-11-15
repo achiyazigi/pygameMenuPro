@@ -5,66 +5,122 @@ create a pygame menu fast without compromise
 ## Usage:
 --(before you run this code make sure you have installed/changed the fonts in the code)
 ```python
-import pygame
+from pygame import display
 from pygameMenuPro import *
 
-# pygame setup:
+# Lets finish with the pygame stuff...
 pygame.init()
-pygame.display.set_caption('Pygame Menu Pro')
+pygame.display.set_caption('title')
 
-# consts:
-WIDTH= 1080
-HEIGHT=WIDTH//1.6
+WIDTH = 1080
+HEIGHT = WIDTH//1.6
 WINDOW_SIZE = (WIDTH, HEIGHT)
 
-# The surface for my menu:
 screen = pygame.display.set_mode(WINDOW_SIZE, depth=32)
 
-# This can be different for each Menu element,
-# I Chose here for simplicity and style to place all titles the same...
+# Define some constants:
 TITLE_POS = (screen.get_width()//2, screen.get_height()//4)
 
-# setting up your font with your names so it will be much easier to
-# access them with the correct context.
-# keep your fonts orgenized and patterned
-Option.font.add_font('option_font', pygame.font.SysFont('Comic Sans MS', 50))
-Option.font.add_font('highlight_font', pygame.font.SysFont('Comic Sans MS', 50, bold=True))
-Option.font.add_font('title_font', pygame.font.SysFont('Plaguard-ZVnjx', 80))
+OPTIONS_MENU_COLOR = Color(38, 91, 200)
 
-# options for Main Menu
-start_option = HighlightOption(Option('Start', 'option_font'), 'highlight_font')
-options_menu = HighlightMenu(Menu(Option('Options', 'option_font'), screen, TITLE_POS, 'title_font'), 'highlight_font')
-quit_option = HighlightOption(Option('Quit', 'option_font'), 'highlight_font')
+# Set your own default fonts.
+# you can always choose something different in a specific instance...
+Option.font.set_default_option(pygame.font.SysFont('Comic Sans MS', 50))
+Option.font.set_default_title(pygame.font.SysFont('Comic Sans MS', 80))
+Option.font.set_default_highlight(pygame.font.SysFont('Comic Sans MS', 50, bold=True))
 
-# every menu is also an Option element and can be presented as an option in other menu/s...
-main_menu = Menu(Option('Main Menu', 'option_font'), screen, TITLE_POS, 'title_font')
+# Define your listeners.
+# It's recommanded to define them on the go
+# while you define your options.
+def start_game():
+    """
+    Shows a blue screen representing the game has started
+    """
+    menu.run_display = False
+    while(True):
+        screen.fill(Color(0, 0, 255))
+        Option.input.check_input()
+        Option.clock.tick(60)
+        display.update()
+        Option.input.reset()
 
-# add a function to quit
-def quit(option:Option, menu:Menu):
-    if(option.is_selected()):
-        menu.run_display = False
 
-# apply the quit function to the quit option!
-# the quit function above will be called each time quit_option is active (highlighted but not nesceserly)
-quit_option.add_on_active_function(lambda: quit(quit_option, main_menu))
+def scroll_to_change(option: Option):
+    """
+    Enables scrolling to change an active input option
+    """
+    if(Option.input.mouse_wheel[1] < 0 and option.input_output > 0):
+        option.input_output -= 1
+    elif(Option.input.mouse_wheel[1] > 0 and option.input_output < 100):
+        option.input_output += 1
 
-# options for options-menu
-back_option = Option('Back', 'option_font')
-# using the same quit function to quit the options-menu and actualy return to the parent menu!
-back_option.add_on_active_function(lambda: quit(back_option, options_menu))
 
-# apply an option to options-menu
-options_menu.add_option(back_option)
+def quit_menu(menu: Menu):
+    """
+    Back to previous menu.
+    If main menu then the control passes back to main code
+    """
+    menu.run_display = False
+    Option.input.reset()
 
-# apply multiple options to main-menu
-main_menu.set_options([
-    start_option,
-    options_menu,
-    quit_option
+# start option for starting the game.
+# Note that you don't have to add highlight but it's recommanded
+start = Option('Start')\
+    .add.highlight()\
+    .add.select_listener(lambda _: start_game()) # (Subscribing start_game to 'on_select' event)
+
+# Volume option for volume adjustment. (in options menu)
+volume = Option('volume')\
+    .add.highlight()\
+    .add.input(0)\
+    .add.active_listener(scroll_to_change)
+
+# Difficulty option for Difficulty adjustment. (in options menu)
+difficulty = Option('Difficulty Level:')\
+    .add.highlight()\
+    .add.input(0)\
+    .add.active_listener(scroll_to_change)
+
+# Back to Main Menu
+back = Option('Back To Main Menu')\
+    .add.highlight()\
+    .add.select_listener(lambda _: quit_menu(options))
+
+# An encapsulated menu.
+# By default selecting that option will run this menu display.
+# set_options will set the input list as this menu's options.
+options = Option('Options', color=OPTIONS_MENU_COLOR)\
+    .add.mouse_menu(screen, TITLE_POS, background_color=OPTIONS_MENU_COLOR)\
+    .set_options([volume, difficulty, back])\
+    .add.highlight()\
+    .add.select_listener(lambda _: Option.input.reset())
+
+# Lets leave this option blank for you to see the default behavior...
+credits = Option('Credits')\
+    .add.highlight()
+
+# Exit main menu and return to user's program code:
+quit = Option('Quit')\
+    .add.highlight()\
+    .add.select_listener(lambda _: quit_menu(menu))
+
+# Setting the main menu and its options
+menu = Option('menu').add.mouse_menu(screen, TITLE_POS).set_options([
+    start,
+    options,
+    credits,
+    quit
 ])
 
-# run!
-main_menu.display_menu()
+# Starting menu's loop.
+# The loop can be interrupted nicely by menu.run_display = False.
+# One example for such interrupt is in quit_menu above...
+menu.display_menu()
 
+# game.vol = volume.input_output
+# game.level = difficulty.input_output
+
+# while(not game.over):
+#     ...
 
 ```
