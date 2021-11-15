@@ -2,13 +2,13 @@ from distutils.core import setup
 setup(
     name='pygameMenuPro',
     packages=['pygameMenuPro'],
-    version='0.1',
+    version='0.2',
     license='MIT',
     description='Create a pygame menu fast and without compromises',
     author='AchiyaZigi',
     author_email='achiyazigi@gmail.com',
     url='https://github.com/achiyazigi/pygameMenuPro',
-    download_url='https://github.com/achiyazigi/pygameMenuPro/archive/refs/tags/v_0.1.tar.gz',
+    download_url='https://github.com/achiyazigi/pygameMenuPro/archive/refs/tags/v_0.2.tar.gz',
     keywords=['pygame', 'menu', 'pygame_menu', 'pygameMenuPro', 'pro'],
     install_requires=[
         'pygame',
